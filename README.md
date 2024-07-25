@@ -15,7 +15,7 @@ Requirements:
 - os
 - matplotlib (matplotlib==3.6.3)
 - seaborn(seaborn==0.12.2)
-- sklearn (sklearn==0.0.post1_
+- sklearn (sklearn==0.0.post1)
 - shap (shap==0.45.0)
 - _pickle
 - scipy (scipy==1.13.0)
