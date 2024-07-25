@@ -1,4 +1,5 @@
-# ADMEThyst
+# ADMET-AI-DICTrank -- ADMEThyst
+# Stanford University - Greenstone Biosciences
 ## DICT concern prediction (concern for Drug induced cardio-toxicity)
 Drug induced toxicity predictions at organ and tissue level, trained on 41 ADMET predictions from ADMET-AI (https://github.com/swansonk14/admet_ai.git)
 training data : Drugs obtained from DICTrank database (https://www.sciencedirect.com/science/article/pii/S1359644623002866, 
