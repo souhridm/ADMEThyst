@@ -22,7 +22,7 @@ Requirements:
 
 Steps:
 
-1. Install admet-ai and chemprop
+1. Install required packages, admet-ai and chemprop
 2. Open /path_to_local_repo/scripts/Train_&_Plot_ADMET_AI_DICTrank_predictor.ipynb to train using 555 drugs (262 no DICT concern, 293 most DICT concern) from DICTrank using 41 ADMET properties from ADMET-AI, plot performance (ROC, PR curves), comparison with SwissADME, identify most important features (SHAP) and plot radial plots for least toxic and most toxic cardiovascular drugs.
 3. Run /path_to_local_repo/scripts/Predict_ADMET_AI_DICTrank.py
 
