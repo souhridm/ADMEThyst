@@ -23,14 +23,12 @@ import argparse
 import datetime
 
 
-
-path_to_repo = '/Users/souhridm/Downloads/ADMET_AI_data'
-
+# Add path to local repo here
+path_to_repo = ''
 
 did = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
 
-
-
+# Conversion of ADMET-AI column names
 xxx = '''
 HIA_Hou	Human Intestinal Absorption
 Bioavailability_Ma	Oral Bioavailability
@@ -93,7 +91,6 @@ admet_ai_feats = [
        'PPBR_AZ', 'Solubility_AqSolDB', 'VDss_Lombardo'
              ]
 
-
 xgbs = []
 for r, d, f in os.walk(os.path.join(path_to_repo, 'models', 'ensemble')):
     for fname in f:
@@ -141,7 +138,6 @@ preds.to_csv(os.path.join(out_path, '{n}_ADMET-AI_DICTrank_preds.csv'.format(n=j
 print('DICT concern predictions saved at: {p}'.format(p=os.path.join(out_path, '{n}_ADMET-AI_DICTrank_preds.csv'.format(n=jname))))
 
 print(preds)
-
 
 
 # Define parameters for radial plots
