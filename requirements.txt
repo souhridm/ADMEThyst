@@ -1,9 +1,10 @@
 admet-ai==1.3.1
 chemprop==1.6.1
 matplotlib==3.9.1
+notebook==7.2.1
 numpy==1.26.4
 pandas==2.1.4
 scipy==1.14.0
 seaborn==0.13.2
 shap==0.46.0
-scikit-learn==1.5.1
+scikit-learn==1.3.2

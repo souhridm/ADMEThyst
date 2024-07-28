@@ -2,25 +2,18 @@
 # coding: utf-8
 
 
-import pandas as pd, numpy as np, os, matplotlib as mpl, seaborn, matplotlib.pyplot as plt, re
-
-from matplotlib.patches import Patch
-from matplotlib import ticker
-mpl.rcParams['font.sans-serif'] = "Arial"
-mpl.rcParams['font.family'] = "sans-serif"
-
-from sklearn import datasets, manifold, metrics
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.metrics import auc, fbeta_score
-
-from admet_ai import ADMETModel
-from chemprop.data.utils import get_data, split_data
-
-import shap, umap, _pickle as pickle
-from scipy import stats
-
 import argparse
 import datetime
+import os
+import pickle
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+from admet_ai import ADMETModel
+
+mpl.rcParams['font.sans-serif'] = "Arial"
+mpl.rcParams['font.family'] = "sans-serif"
 
 
 # Add path to local repo here
@@ -102,7 +95,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-s', '--smiles', type=str, dest='smiles', required=False,
                     help="individual SMILES string, to predict DICT concern - based on ADMET-AI")
 parser.add_argument('-l', '--list', type=str, dest='list',  required=False,
-                    help=".txt file contining list of SMILES strings, to predict DICT concern - based on ADMET-AI")
+                    help=".txt file containing list of SMILES strings, to predict DICT concern - based on ADMET-AI")
 parser.add_argument('-n', '--name', type=str, dest='name',  default=did,
                     help="Run ID or name")
 parser.add_argument('-o', '--out_path', type=str, dest='out_path',  default=os.getcwd(),
