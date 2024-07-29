@@ -17,7 +17,6 @@ from tap import Tap
 mpl.rcParams['font.sans-serif'] = "Arial"
 mpl.rcParams['font.family'] = "sans-serif"
 
-
 # Add path to local repo here
 path_to_repo = ''
 
@@ -73,18 +72,18 @@ for l in xxx:
     feat_name_dict[y[0]] = y[1].replace('/', '\n')
 
 admet_ai_feats = [
-       'AMES', 'BBB_Martins', 'Bioavailability_Ma', 'CYP1A2_Veith',
-       'CYP2C19_Veith', 'CYP2C9_Substrate_CarbonMangels', 'CYP2C9_Veith',
-       'CYP2D6_Substrate_CarbonMangels', 'CYP2D6_Veith',
-       'CYP3A4_Substrate_CarbonMangels', 'CYP3A4_Veith', 'Carcinogens_Lagunin',
-       'ClinTox', 'DILI', 'HIA_Hou', 'NR-AR-LBD', 'NR-AR', 'NR-AhR',
-       'NR-Aromatase', 'NR-ER-LBD', 'NR-ER', 'NR-PPAR-gamma', 'PAMPA_NCATS',
-       'Pgp_Broccatelli', 'SR-ARE', 'SR-ATAD5', 'SR-HSE', 'SR-MMP', 'SR-p53',
-       'Skin_Reaction', 'hERG', 'Caco2_Wang', 'Clearance_Hepatocyte_AZ',
-       'Clearance_Microsome_AZ', 'Half_Life_Obach',
-       'HydrationFreeEnergy_FreeSolv', 'LD50_Zhu', 'Lipophilicity_AstraZeneca',
-       'PPBR_AZ', 'Solubility_AqSolDB', 'VDss_Lombardo'
-             ]
+    'AMES', 'BBB_Martins', 'Bioavailability_Ma', 'CYP1A2_Veith',
+    'CYP2C19_Veith', 'CYP2C9_Substrate_CarbonMangels', 'CYP2C9_Veith',
+    'CYP2D6_Substrate_CarbonMangels', 'CYP2D6_Veith',
+    'CYP3A4_Substrate_CarbonMangels', 'CYP3A4_Veith', 'Carcinogens_Lagunin',
+    'ClinTox', 'DILI', 'HIA_Hou', 'NR-AR-LBD', 'NR-AR', 'NR-AhR',
+    'NR-Aromatase', 'NR-ER-LBD', 'NR-ER', 'NR-PPAR-gamma', 'PAMPA_NCATS',
+    'Pgp_Broccatelli', 'SR-ARE', 'SR-ATAD5', 'SR-HSE', 'SR-MMP', 'SR-p53',
+    'Skin_Reaction', 'hERG', 'Caco2_Wang', 'Clearance_Hepatocyte_AZ',
+    'Clearance_Microsome_AZ', 'Half_Life_Obach',
+    'HydrationFreeEnergy_FreeSolv', 'LD50_Zhu', 'Lipophilicity_AstraZeneca',
+    'PPBR_AZ', 'Solubility_AqSolDB', 'VDss_Lombardo'
+]
 
 xgbs = []
 for r, d, f in os.walk(os.path.join(path_to_repo, 'models', 'ensemble')):
@@ -117,25 +116,25 @@ model = ADMETModel()
 preds = model.predict(smiles=smiles)[admet_ai_feats].rename(columns=feat_name_dict)
 probs = []
 for x in xgbs:
-    p = x.predict_proba(preds)[:,1]
+    p = x.predict_proba(preds)[:, 1]
     probs.append(p)
 
 dictrank_probs = np.mean(np.asarray(probs), axis=0)
 preds['pred. DICT concern'] = dictrank_probs
 sel_feats = [
-            "CYP2D6 Substrate",
-            "CYP2D6 Inhibition",
-            "Nrf2-Antioxidant Responsive Element",
-            "Heat Shock Factor Response Element",
-            "Aromatase",
-            ]
-preds = preds[['pred. DICT concern'] + sel_feats + [x for x in preds.columns if x not in sel_feats and x != 'pred. DICT concern']]
+    "CYP2D6 Substrate",
+    "CYP2D6 Inhibition",
+    "Nrf2-Antioxidant Responsive Element",
+    "Heat Shock Factor Response Element",
+    "Aromatase",
+]
+preds = preds[
+    ['pred. DICT concern'] + sel_feats + [x for x in preds.columns if x not in sel_feats and x != 'pred. DICT concern']]
 save_path = out_path / f'{jname}_ADMET-AI_DICTrank_preds.csv'
 preds.to_csv(save_path)
 print(f'DICT concern predictions saved at: {save_path}')
 
 print(preds)
-
 
 # Define parameters for radial plots
 
@@ -156,10 +155,10 @@ property_names = [
 ]
 
 dictrank_colors2 = {
-                    'none': '#99d594',
-                    'most': '#df65b0',
-                    'withdrawn': 'red'
-                    }
+    'none': '#99d594',
+    'most': '#df65b0',
+    'withdrawn': 'red'
+}
 
 
 ## Function to plot radial plot
@@ -170,16 +169,16 @@ def plot_radial_list_drugs(df, drugs, colors, tox_label):
     for j, d in enumerate(drugs):
         d = str(d)
         plt.plot([], [], label=d[0].upper() + d[1:], color=colors[j], linewidth=4,
-                )
+                 )
         dfi = df[df['name'] == d]
         values = []
         for f in property_ids:
             values.append(dfi[f].values[0])
 
-    # Calculate the angles of the plot (angles start at pi / 2 and go counter-clockwise)
+        # Calculate the angles of the plot (angles start at pi / 2 and go counter-clockwise)
         angles = (
-            (np.linspace(0, 2 * np.pi, len(values), endpoint=False) + np.pi / 2)
-            % (2 * np.pi)
+                (np.linspace(0, 2 * np.pi, len(values), endpoint=False) + np.pi / 2)
+                % (2 * np.pi)
         ).tolist()
 
         # Complete the loop
@@ -187,7 +186,7 @@ def plot_radial_list_drugs(df, drugs, colors, tox_label):
         angles += angles[:1]
 
         ax.plot(angles, values, color=colors[j], linewidth=4,
-               )
+                )
 
         # Set y limits
         ax.set_ylim(0, 1)
@@ -205,7 +204,7 @@ def plot_radial_list_drugs(df, drugs, colors, tox_label):
 
         # Adjust xticklabels so they don't overlap the plot
         for i, (label, property_name) in enumerate(
-            zip(ax.get_xticklabels(), property_names)
+                zip(ax.get_xticklabels(), property_names)
         ):
             if i in [1, 4]:
                 label.set_verticalalignment("bottom")
@@ -231,19 +230,18 @@ no_DICT_concern_drugs_list = [str(x + 1) for x in np.arange(0, n)]
 no_DICT_concern_drugs_colors = ['#d9f0a3', '#a1d99b', '#41ab5d', '#006d2c', '#00441b']
 
 fig = plot_radial_list_drugs(
-                             df=preds_low,
-                             drugs=no_DICT_concern_drugs_list,
-                             colors=no_DICT_concern_drugs_colors,
-                             tox_label='pred. DICT concern: lowest'
-                            )
+    df=preds_low,
+    drugs=no_DICT_concern_drugs_list,
+    colors=no_DICT_concern_drugs_colors,
+    tox_label='pred. DICT concern: lowest'
+)
 
 least_save_path = out_path / 'least_DICT_concern_drugs_radial_plot.pdf'
 fig.savefig(least_save_path)
 print(f'least DICT concern drugs radial plot saved at: {least_save_path}')
 
 for i, s in enumerate(preds_low.index):
-    print('{i} - {s} - {v}'.format(i=i+1, s=s, v='%0.3g'%preds_low['pred. DICT concern'][s]))
-
+    print('{i} - {s} - {v}'.format(i=i + 1, s=s, v='%0.3g' % preds_low['pred. DICT concern'][s]))
 
 # Plot radial plot for 5 drugs with most DICT concern
 
@@ -255,15 +253,15 @@ most_DICT_concern_drugs_list = [str(x + 1) for x in np.arange(0, n)]
 most_DICT_concern_drugs_colors = ['#49006a', '#7a0177', '#ae017e', '#f768a1', '#c994c7']
 
 fig = plot_radial_list_drugs(
-                             df=preds_high,
-                             drugs=most_DICT_concern_drugs_list,
-                             colors=most_DICT_concern_drugs_colors,
-                             tox_label='pred. DICT concern: highest'
-                            )
+    df=preds_high,
+    drugs=most_DICT_concern_drugs_list,
+    colors=most_DICT_concern_drugs_colors,
+    tox_label='pred. DICT concern: highest'
+)
 
 most_save_path = out_path / 'most_DICT_concern_drugs_radial_plot.pdf'
 fig.savefig(most_save_path)
 print(f'most DICT concern drugs radial plot saved at: {most_save_path}')
 
 for i, s in enumerate(preds_high.index):
-    print('{i} - {s} - {v}'.format(i=i+1, s=s, v='%0.3g'%preds_high['pred. DICT concern'][s]))
+    print('{i} - {s} - {v}'.format(i=i + 1, s=s, v='%0.3g' % preds_high['pred. DICT concern'][s]))
