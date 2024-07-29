@@ -6,11 +6,13 @@ import argparse
 import datetime
 import os
 import pickle
+from pathlib import Path
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from admet_ai import ADMETModel
+from tap import Tap
 
 mpl.rcParams['font.sans-serif'] = "Arial"
 mpl.rcParams['font.family'] = "sans-serif"
@@ -91,24 +93,25 @@ for r, d, f in os.walk(os.path.join(path_to_repo, 'models', 'ensemble')):
         xgbs.append(x)
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-s', '--smiles', type=str, dest='smiles', required=False,
-                    help="individual SMILES string, to predict DICT concern - based on ADMET-AI")
-parser.add_argument('-l', '--list', type=str, dest='list',  required=False,
-                    help=".txt file containing list of SMILES strings, to predict DICT concern - based on ADMET-AI")
-parser.add_argument('-n', '--name', type=str, dest='name',  default=did,
-                    help="Run ID or name")
-parser.add_argument('-o', '--out_path', type=str, dest='out_path',  default=os.getcwd(),
-                    help="Output folder or directory")
+class Args(Tap):
+    smiles: str | None = None  # individual SMILES string, to predict DICT concern - based on ADMET-AI
+    list: str | None = None  # .txt file containing list of SMILES strings, to predict DICT concern - based on ADMET-AI
+    name: str = did  # Run ID or name
+    out_path: Path = Path.cwd()  # Output folder or directory
 
 
-args = parser.parse_args()
-if args.smiles:
+args = Args().parse_args()
+
+if args.smiles is not None:
     smiles = [args.smiles]
-elif args.list:
+elif args.list is not None:
     smiles = open(args.list).read().split('\n')[:-1]
+else:
+    raise ValueError('Either SMILES or list of SMILES must be provided')
+
 jname = args.name
 out_path = args.out_path
+out_path.mkdir(parents=True, exist_ok=True)
 
 model = ADMETModel()
 preds = model.predict(smiles=smiles)[admet_ai_feats].rename(columns=feat_name_dict)
@@ -116,7 +119,7 @@ probs = []
 for x in xgbs:
     p = x.predict_proba(preds)[:,1]
     probs.append(p)
-    
+
 dictrank_probs = np.mean(np.asarray(probs), axis=0)
 preds['pred. DICT concern'] = dictrank_probs
 sel_feats = [
@@ -127,8 +130,9 @@ sel_feats = [
             "Aromatase",
             ]
 preds = preds[['pred. DICT concern'] + sel_feats + [x for x in preds.columns if x not in sel_feats and x != 'pred. DICT concern']]
-preds.to_csv(os.path.join(out_path, '{n}_ADMET-AI_DICTrank_preds.csv'.format(n=jname)))
-print('DICT concern predictions saved at: {p}'.format(p=os.path.join(out_path, '{n}_ADMET-AI_DICTrank_preds.csv'.format(n=jname))))
+save_path = out_path / f'{jname}_ADMET-AI_DICTrank_preds.csv'
+preds.to_csv(save_path)
+print(f'DICT concern predictions saved at: {save_path}')
 
 print(preds)
 
@@ -153,7 +157,7 @@ property_names = [
 
 dictrank_colors2 = {
                     'none': '#99d594',
-                    'most': '#df65b0', 
+                    'most': '#df65b0',
                     'withdrawn': 'red'
                     }
 
@@ -162,7 +166,7 @@ dictrank_colors2 = {
 
 def plot_radial_list_drugs(df, drugs, colors, tox_label):
     fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
-    
+
     for j, d in enumerate(drugs):
         d = str(d)
         plt.plot([], [], label=d[0].upper() + d[1:], color=colors[j], linewidth=4,
@@ -182,7 +186,7 @@ def plot_radial_list_drugs(df, drugs, colors, tox_label):
         values += values[:1]
         angles += angles[:1]
 
-        ax.plot(angles, values, color=colors[j], linewidth=4, 
+        ax.plot(angles, values, color=colors[j], linewidth=4,
                )
 
         # Set y limits
@@ -227,14 +231,15 @@ no_DICT_concern_drugs_list = [str(x + 1) for x in np.arange(0, n)]
 no_DICT_concern_drugs_colors = ['#d9f0a3', '#a1d99b', '#41ab5d', '#006d2c', '#00441b']
 
 fig = plot_radial_list_drugs(
-                             df=preds_low, 
+                             df=preds_low,
                              drugs=no_DICT_concern_drugs_list,
-                             colors=no_DICT_concern_drugs_colors, 
+                             colors=no_DICT_concern_drugs_colors,
                              tox_label='pred. DICT concern: lowest'
                             )
 
-fig.savefig(os.path.join(out_path, 'least_DICT_concern_drugs_radial_plot.pdf'))
-print('least DICT concern drugs radial plot saved at: {p}'.format(p=os.path.join(out_path, 'least_DICT_concern_drugs_radial_plot.pdf')))
+least_save_path = out_path / 'least_DICT_concern_drugs_radial_plot.pdf'
+fig.savefig(least_save_path)
+print(f'least DICT concern drugs radial plot saved at: {least_save_path}')
 
 for i, s in enumerate(preds_low.index):
     print('{i} - {s} - {v}'.format(i=i+1, s=s, v='%0.3g'%preds_low['pred. DICT concern'][s]))
@@ -250,20 +255,15 @@ most_DICT_concern_drugs_list = [str(x + 1) for x in np.arange(0, n)]
 most_DICT_concern_drugs_colors = ['#49006a', '#7a0177', '#ae017e', '#f768a1', '#c994c7']
 
 fig = plot_radial_list_drugs(
-                             df=preds_high, 
+                             df=preds_high,
                              drugs=most_DICT_concern_drugs_list,
-                             colors=most_DICT_concern_drugs_colors, 
+                             colors=most_DICT_concern_drugs_colors,
                              tox_label='pred. DICT concern: highest'
                             )
 
-fig.savefig(os.path.join(out_path, 'most_DICT_concern_drugs_radial_plot.pdf'))
-print('most DICT concern drugs radial plot saved at: {p}'.format(p=os.path.join(out_path, 'most_DICT_concern_drugs_radial_plot.pdf')))
+most_save_path = out_path / 'most_DICT_concern_drugs_radial_plot.pdf'
+fig.savefig(most_save_path)
+print(f'most DICT concern drugs radial plot saved at: {most_save_path}')
 
 for i, s in enumerate(preds_high.index):
     print('{i} - {s} - {v}'.format(i=i+1, s=s, v='%0.3g'%preds_high['pred. DICT concern'][s]))
-
-
-
-
-
-
