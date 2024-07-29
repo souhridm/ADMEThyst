@@ -23,19 +23,18 @@ pip install -r requirements.txt
 
 Run `scripts/Train_&_Plot_ADMET_AI_DICTrank_predictor.ipynb` to train using 555 drugs (262 no DICT concern, 293 most DICT concern) from DICTrank using 41 ADMET properties from ADMET-AI. This notebook also plots performance (ROC AUC and PR AUC curves), compares ADMET-AI with SwissADME, identifies most important features (SHAP), and plots radial plots for least toxic and most toxic cardiovascular drugs.
 
-Run `scripts/Predict_ADMET_AI_DICTrank.py` to get 41 ADMET property predictions from ADMET-AI and DICTrank predictions for an individual SMILES string or a list of SMILES strings in a `.txt` file.
+Run `scripts/Predict_ADMET_AI_DICTrank.py` to get 41 ADMET property predictions from ADMET-AI and DICTrank predictions for SMILES string(s) or a list of SMILES strings in a `.txt` file.
 
+Example usage.
 ```bash
-python scripts/Predict_ADMET_AI_DICTrank.py -h                                                          
-    usage: Predict_ADMET_AI_DICTrank.py [-h] [-s SMILES] [-l LIST] [-n NAME] [-o OUT_PATH]
-    
-    options:
-      -h, --help            show this help message and exit
-      -s SMILES, --smiles SMILES
-                            individual SMILES string, to predict DICT concern - based on ADMET-AI
-      -l LIST, --list LIST  .txt file contining list of SMILES strings, to predict DICT concern - based on
-                            ADMET-AI
-      -n NAME, --name NAME  Run ID or name
-      -o OUT_PATH, --out_path OUT_PATH
-                          Output folder or directory
+python scripts/Predict_ADMET_AI_DICTrank.py \
+    --smiles "O=C(OC1CC2CC3CC(C1)[NH+]2CC3=O)c1c[nH]c2ccccc12" \
+             "O=c1n(CCC[NH+]2CCN(c3cccc(Cl)c3)CC2)nc2ccccn12" \
+             "CC(C)COc1ccc(CNC(=O)[NH+](Cc2ccc(F)cc2)C2CC[NH+](C)CC2)cc1" \
+             "C[NH+](C)C([NH3+])=NC(N)=[NH2+]" \
+             "CC(C(=O)[O-])c1ccc(-c2ccccc2)c(F)c1" \
+    --name admet_ai_dictrank \
+    --out_dir test_prediction
 ```
+
+Run `python scripts/Predict_ADMET_AI_DICTrank.py -h` for more information.

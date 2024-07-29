@@ -20,8 +20,6 @@ mpl.rcParams['font.family'] = "sans-serif"
 # Add path to local repo here
 path_to_repo = ''
 
-did = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
-
 # Conversion of ADMET-AI column names
 xxx = '''
 HIA_Hou	Human Intestinal Absorption
@@ -93,24 +91,23 @@ for r, d, f in os.walk(os.path.join(path_to_repo, 'models', 'ensemble')):
 
 
 class Args(Tap):
-    smiles: str | None = None  # individual SMILES string, to predict DICT concern - based on ADMET-AI
-    list: str | None = None  # .txt file containing list of SMILES strings, to predict DICT concern - based on ADMET-AI
-    name: str = did  # Run ID or name
-    out_path: Path = Path.cwd()  # Output folder or directory
+    smiles: list[str] | None = None  # SMILES string(s), to predict DICT concern - based on ADMET-AI
+    smiles_path: Path | None = None  # Path to .txt file containing list of SMILES strings, to predict DICT concern - based on ADMET-AI
+    name: str = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M:%S")  # Run ID or name
+    out_dir: Path = Path.cwd()  # Output folder or directory
 
 
 args = Args().parse_args()
 
 if args.smiles is not None:
-    smiles = [args.smiles]
-elif args.list is not None:
-    smiles = open(args.list).read().split('\n')[:-1]
+    smiles = args.smiles
+elif args.smiles_path is not None:
+    smiles = open(args.smiles_path).read().split('\n')[:-1]
 else:
     raise ValueError('Either SMILES or list of SMILES must be provided')
 
-jname = args.name
-out_path = args.out_path
-out_path.mkdir(parents=True, exist_ok=True)
+out_dir = args.out_dir
+out_dir.mkdir(parents=True, exist_ok=True)
 
 model = ADMETModel()
 preds = model.predict(smiles=smiles)[admet_ai_feats].rename(columns=feat_name_dict)
@@ -130,7 +127,7 @@ sel_feats = [
 ]
 preds = preds[
     ['pred. DICT concern'] + sel_feats + [x for x in preds.columns if x not in sel_feats and x != 'pred. DICT concern']]
-save_path = out_path / f'{jname}_ADMET-AI_DICTrank_preds.csv'
+save_path = out_dir / f'{args.name}_ADMET-AI_DICTrank_preds.csv'
 preds.to_csv(save_path)
 print(f'DICT concern predictions saved at: {save_path}')
 
@@ -236,7 +233,7 @@ fig = plot_radial_list_drugs(
     tox_label='pred. DICT concern: lowest'
 )
 
-least_save_path = out_path / 'least_DICT_concern_drugs_radial_plot.pdf'
+least_save_path = out_dir / 'least_DICT_concern_drugs_radial_plot.pdf'
 fig.savefig(least_save_path)
 print(f'least DICT concern drugs radial plot saved at: {least_save_path}')
 
@@ -259,7 +256,7 @@ fig = plot_radial_list_drugs(
     tox_label='pred. DICT concern: highest'
 )
 
-most_save_path = out_path / 'most_DICT_concern_drugs_radial_plot.pdf'
+most_save_path = out_dir / 'most_DICT_concern_drugs_radial_plot.pdf'
 fig.savefig(most_save_path)
 print(f'most DICT concern drugs radial plot saved at: {most_save_path}')
 
