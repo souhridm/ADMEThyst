@@ -122,7 +122,6 @@ sel_feats = [
     "CYP2D6 Substrate",
     "CYP2D6 Inhibition",
     "Nrf2-Antioxidant Responsive Element",
-    "Heat Shock Factor Response Element",
     "Aromatase",
 ]
 preds = preds[
@@ -133,13 +132,12 @@ print(f'DICT concern predictions saved at: {save_path}')
 
 print(preds)
 
-# Define parameters for radial plots
+# Define parameters for radar plots
 
 property_ids = [
     "CYP2D6 Substrate",
     "CYP2D6 Inhibition",
     "Nrf2-Antioxidant Responsive Element",
-    "Heat Shock Factor Response Element",
     "Aromatase",
 ]
 property_ids = [f"{property_id}" for property_id in property_ids]
@@ -147,7 +145,6 @@ property_names = [
     "CYP2D6\nSubstrate",
     "CYP2D6\nInhibition",
     "Nrf2-Antioxidant\nResponsive\nElement",
-    "Heat Shock Factor\nResponse Element",
     "Aromatase",
 ]
 
@@ -158,9 +155,9 @@ dictrank_colors2 = {
 }
 
 
-## Function to plot radial plot
+## Function to plot radar plot
 
-def plot_radial_list_drugs(df, drugs, colors, tox_label):
+def plot_radar_list_drugs(df, drugs, colors, tox_label):
     fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
 
     for j, d in enumerate(drugs):
@@ -217,7 +214,7 @@ def plot_radial_list_drugs(df, drugs, colors, tox_label):
     return fig
 
 
-# Plot radial plot for 5 drugs with least DICT concern
+# Plot radar plot for 5 drugs with least DICT concern
 
 n = int(np.minimum(len(preds.index), 5))
 preds_low = preds.sort_values(by='pred. DICT concern', ascending=True)[:n]
@@ -226,21 +223,21 @@ preds_low['name'] = [str(x + 1) for x in np.arange(0, n)]
 no_DICT_concern_drugs_list = [str(x + 1) for x in np.arange(0, n)]
 no_DICT_concern_drugs_colors = ['#d9f0a3', '#a1d99b', '#41ab5d', '#006d2c', '#00441b']
 
-fig = plot_radial_list_drugs(
+fig = plot_radar_list_drugs(
     df=preds_low,
     drugs=no_DICT_concern_drugs_list,
     colors=no_DICT_concern_drugs_colors,
     tox_label='pred. DICT concern: lowest'
 )
 
-least_save_path = out_dir / 'least_DICT_concern_drugs_radial_plot.pdf'
+least_save_path = out_dir / 'least_DICT_concern_drugs_radar_plot.pdf'
 fig.savefig(least_save_path)
-print(f'least DICT concern drugs radial plot saved at: {least_save_path}')
+print(f'least DICT concern drugs radar plot saved at: {least_save_path}')
 
 for i, s in enumerate(preds_low.index):
     print('{i} - {s} - {v}'.format(i=i + 1, s=s, v='%0.3g' % preds_low['pred. DICT concern'][s]))
 
-# Plot radial plot for 5 drugs with most DICT concern
+# Plot radarl plot for 5 drugs with most DICT concern
 
 n = int(np.minimum(len(preds.index), 5))
 preds_high = preds.sort_values(by='pred. DICT concern', ascending=False)[:n]
@@ -249,16 +246,16 @@ preds_high['name'] = [str(x + 1) for x in np.arange(0, n)]
 most_DICT_concern_drugs_list = [str(x + 1) for x in np.arange(0, n)]
 most_DICT_concern_drugs_colors = ['#49006a', '#7a0177', '#ae017e', '#f768a1', '#c994c7']
 
-fig = plot_radial_list_drugs(
+fig = plot_radar_list_drugs(
     df=preds_high,
     drugs=most_DICT_concern_drugs_list,
     colors=most_DICT_concern_drugs_colors,
     tox_label='pred. DICT concern: highest'
 )
 
-most_save_path = out_dir / 'most_DICT_concern_drugs_radial_plot.pdf'
+most_save_path = out_dir / 'most_DICT_concern_drugs_radar_plot.pdf'
 fig.savefig(most_save_path)
-print(f'most DICT concern drugs radial plot saved at: {most_save_path}')
+print(f'most DICT concern drugs radar plot saved at: {most_save_path}')
 
 for i, s in enumerate(preds_high.index):
     print('{i} - {s} - {v}'.format(i=i + 1, s=s, v='%0.3g' % preds_high['pred. DICT concern'][s]))
